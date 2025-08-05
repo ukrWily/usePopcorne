@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import StarRating from "./StarRating";
 import { useMovies } from "./useMovies";
 import { useLocalStorageState } from "./useLocalStorageState";
+import useKey from "./useKey";
 
 const KEY = "14d4ee2";
 
@@ -127,20 +128,11 @@ function Logo() {
 function Search({ query, setQuery }) {
   const inputEl = useRef(null);
 
-  useEffect(() => {
-    function callback(e) {
-      if (document.activeElement === inputEl.current) return;
-
-      if (e.code === "Enter") {
-        inputEl.current.focus();
-        setQuery("");
-      }
-    }
-
-    document.addEventListener("keydown", callback);
-
-    return () => document.addEventListener("keydown", callback);
-  }, [setQuery]);
+  useKey("Enter", function () {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery("");
+  });
 
   return (
     <input
@@ -272,7 +264,7 @@ function MovieDetails({ selectedID, onCloseMovie, onAddWatched, watched }) {
   } = movie;
 
   const [isTop, setIsTop] = useState(imdbRating > 8);
-  console.log(isTop);
+  // console.log(isTop);
 
   // const [avgRating, setAvgRating] = useState(0);
 
@@ -295,19 +287,7 @@ function MovieDetails({ selectedID, onCloseMovie, onAddWatched, watched }) {
     // setAvgRating((avgRating) => (avgRating + userRating) / 2);
   }
 
-  useEffect(() => {
-    function callback(e) {
-      if (e.code === "Escape") {
-        onCloseMovie();
-      }
-    }
-
-    document.addEventListener("keydown", callback);
-
-    return () => {
-      document.removeEventListener("keydown", callback);
-    };
-  }, [onCloseMovie]);
+  useKey("Escape", onCloseMovie);
 
   useEffect(() => {
     async function getMovieDetails() {
@@ -316,7 +296,7 @@ function MovieDetails({ selectedID, onCloseMovie, onAddWatched, watched }) {
         `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedID}`
       );
       const data = await res.json();
-      console.log("data" + data.Title);
+      // console.log("data" + data.Title);
       setMovie(data);
       setIsLoading(false);
     }
